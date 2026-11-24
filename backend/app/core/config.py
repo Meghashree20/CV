@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     mongodb_db_name: str = "skin_analysis"
     mongodb_server_selection_timeout_ms: int = Field(default=2000, ge=100, le=30000)
     max_image_upload_size_mb: int = Field(default=5, ge=1, description="Maximum image upload size in megabytes")
+    max_image_dimension_px: int = Field(
+        default=1024,
+        ge=1,
+        description="Maximum dimension in pixels for preprocessed images",
+    )
     image_storage_path: Path = Field(default=BACKEND_DIR / "uploads" / "images", description="Directory for storing uploaded images")
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
 
