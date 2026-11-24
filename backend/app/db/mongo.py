@@ -4,7 +4,7 @@
 import logging
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from pymongo import ASCENDING
+from pymongo import ASCENDING, DESCENDING
 
 from app.core.config import get_settings
 
@@ -45,6 +45,7 @@ class MongoManager:
             self.database = None
             return False
 
+    
     async def ensure_indexes(self) -> None:
         """Create required MongoDB indexes after a successful connection."""
 
@@ -57,7 +58,22 @@ class MongoManager:
             name="uq_users_email_normalized",
         )
 
-        logger.info("MongoDB user email index ensured")
+        await self.database["images"].create_index(
+            [("filename", ASCENDING)],
+            unique=True,
+            name="uq_images_filename",
+        )
+
+        await self.database["images"].create_index(
+            [
+                ("user_id", ASCENDING),
+                ("uploaded_at", DESCENDING),
+            ],
+            name="idx_images_user_uploaded_at",
+        )
+
+        logger.info("MongoDB indexes ensured")
+ 
 
     async def ping(self) -> bool:
         if self.client is None:

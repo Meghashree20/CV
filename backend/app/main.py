@@ -5,26 +5,25 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.api.routes.images import router as images_router
 from app import __version__
 from app.api.routes.health import router as health_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.users import router as users_router
+from app.api.routes.images import router as images_router
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
-from app.api.routes.users import router as users_router
 from app.core.middleware import RequestLoggingMiddleware
 from app.db.mongo import mongo
 
 logger = logging.getLogger(__name__)
-
-
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     settings = get_settings()
     configure_logging(settings.log_level)
 
-
+    
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         logger.info(
@@ -69,7 +68,6 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(auth_router)
     app.include_router(users_router)
+    app.include_router(images_router)
     return app
-
-
 app = create_app()
