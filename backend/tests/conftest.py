@@ -1,6 +1,7 @@
 """Test environment is set before the application is imported."""
 
 import os
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 os.environ["APP_NAME"] = "Skin Analysis API"
 os.environ["ENVIRONMENT"] = "test"
@@ -8,7 +9,10 @@ os.environ["LOG_LEVEL"] = "WARNING"
 os.environ["MONGODB_URI"] = "mongodb://localhost:27017"
 os.environ["MONGODB_DB_NAME"] = "skin_analysis_test"
 os.environ["MONGODB_SERVER_SELECTION_TIMEOUT_MS"] = "500"
-os.environ["CORS_ORIGINS"] = "http://localhost:3000,http://localhost:5173"
+os.environ["JWT_SECRET_KEY"] = "testsecret"
+os.environ["JWT_ALGORITHM"] = "HS256"
+os.environ["JWT_EXPIRATION_SECONDS"] = "3600"
+
 
 import pytest
 from fastapi.testclient import TestClient

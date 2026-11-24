@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
 from app.api.routes.health import router as health_router
+from app.api.routes.auth import router as auth_router
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
@@ -18,8 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 def create_app() -> FastAPI:
+    """Create and configure the FastAPI application."""
     settings = get_settings()
     configure_logging(settings.log_level)
+
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -30,12 +33,21 @@ def create_app() -> FastAPI:
             settings.environment,
         )
         logger.info("CORS origins: %s", ", ".join(settings.cors_origin_list))
-        await mongo.connect()
+
+        connected = await mongo.connect()
+
+        if connected:
+            try:
+                await mongo.ensure_indexes()
+            except Exception:
+                logger.exception("Failed to initialize MongoDB indexes")
+
         try:
             yield
         finally:
             await mongo.disconnect()
             logger.info("Stopped %s", settings.app_name)
+
 
     app = FastAPI(
         title=settings.app_name,
@@ -52,7 +64,9 @@ def create_app() -> FastAPI:
         allow_headers=["Authorization", "Content-Type", "Accept"],
     )
     register_exception_handlers(app)
+    # Include routers
     app.include_router(health_router)
+    app.include_router(auth_router)
     return app
 
 
