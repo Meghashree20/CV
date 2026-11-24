@@ -49,3 +49,32 @@ class UserRepository:
             return None
 
         return await self.collection.find_one({"_id": object_id})
+
+    async def update_profile(
+        self, user_id: str, update_data: dict
+    ) -> Optional[dict]:
+        from bson import ObjectId
+        from pymongo import ReturnDocument
+
+        allowed_fields = {
+            "name",
+            "age",
+            "gender",
+            "skin_type",
+            "skin_concerns",
+            "skincare_goals",
+        }
+
+        if not update_data or not set(update_data).issubset(allowed_fields):
+            raise ValueError("Invalid profile update fields")
+
+        try:
+            object_id = ObjectId(user_id)
+        except Exception:
+            return None
+
+        return await self.collection.find_one_and_update(
+            {"_id": object_id},
+            {"$set": update_data},
+            return_document=ReturnDocument.AFTER,
+        )

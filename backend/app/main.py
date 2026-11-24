@@ -12,6 +12,7 @@ from app.api.routes.auth import router as auth_router
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
+from app.api.routes.users import router as users_router
 from app.core.middleware import RequestLoggingMiddleware
 from app.db.mongo import mongo
 
@@ -67,6 +68,7 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(health_router)
     app.include_router(auth_router)
+    app.include_router(users_router)
     return app
 
 
